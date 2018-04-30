@@ -132,7 +132,53 @@ var _ = Describe("Compare", func() {
 			rightSlice := []int{1, 2}
 
 			c := Compare(leftSlice, rightSlice)
-			Expect(c).To(Equal(Comparison{}))
+			Expect(c).To(Equal(Comparison{
+				DifferenceDetails: []Comparison{
+					{
+						Type: SliceAdditionalValue,
+						Index: uint(2),
+						Difference: Difference{
+							LeftVal: 3,
+							RightVal: nil,
+						},
+					},
+					{
+						Type: SliceAdditionalValue,
+						Index: uint(3),
+						Difference: Difference{
+							LeftVal: 4,
+							RightVal: nil,
+						},
+					},
+				},
+			}))
+		})
+
+		XIt("returns comparison with addition values as differences when left slices is larger than right", func() {
+			leftSlice := []string{"a", "b"}
+			rightSlice := []string{"a", "b", "c", "d"}
+
+			c := Compare(leftSlice, rightSlice)
+			Expect(c).To(Equal(Comparison{
+				DifferenceDetails: []Comparison{
+					{
+						Type: SliceAdditionalValue,
+						Index: uint(2),
+						Difference: Difference{
+							LeftVal: nil,
+							RightVal: "c",
+						},
+					},
+					{
+						Type: SliceAdditionalValue,
+						Index: uint(3),
+						Difference: Difference{
+							LeftVal: nil,
+							RightVal: "d",
+						},
+					},
+				},
+			}))
 		})
 	})
 })

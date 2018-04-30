@@ -10,6 +10,7 @@ const (
 	RawDifference DifferenceType = iota
 	TypeDifference
 	SliceDifference
+	SliceAdditionalValue
 )
 
 type Difference struct {
@@ -50,10 +51,28 @@ func compare(left, right interface{}) (diffs Comparison) {
 
 	switch lKind {
 	case reflect.Slice:
-		for i := 0; i < lVal.Len(); i++ {
-			comparison := compare(lVal.Index(i).Interface(), rVal.Index(i).Interface())
+		var (
+			rightComparator interface{}
+			differenceType DifferenceType
+		)
+
+		comparisons := lVal.Len()
+		if rVal.Len() > comparisons {
+			comparisons = rVal.Len()
+		}
+
+		for i := 0; i < comparisons; i++ {
+			if i < rVal.Len() {
+				rightComparator = rVal.Index(i).Interface()
+				differenceType = SliceDifference
+			} else {
+				rightComparator = nil
+				differenceType = SliceAdditionalValue
+			}
+
+			comparison := compare(lVal.Index(i).Interface(), rightComparator)
 			if !reflect.DeepEqual(comparison, Comparison{}) {
-				comparison.Type = SliceDifference
+				comparison.Type = differenceType
 				comparison.Index = uint(i)
 				diffs.DifferenceDetails = append(diffs.DifferenceDetails, comparison)
 			}
