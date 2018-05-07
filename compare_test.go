@@ -127,7 +127,7 @@ var _ = Describe("Compare", func() {
 			}))
 		})
 
-		It("returns comparison with addition values as differences when left slices is larger than right", func() {
+		It("returns comparison with addition values as differences when left slice is larger than right", func() {
 			leftSlice := []int{1, 2, 3, 4}
 			rightSlice := []int{1, 2}
 
@@ -154,7 +154,7 @@ var _ = Describe("Compare", func() {
 			}))
 		})
 
-		XIt("returns comparison with addition values as differences when left slices is larger than right", func() {
+		It("returns comparison with addition values as differences when right slice is larger than left", func() {
 			leftSlice := []string{"a", "b"}
 			rightSlice := []string{"a", "b", "c", "d"}
 

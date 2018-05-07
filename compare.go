@@ -52,7 +52,7 @@ func compare(left, right interface{}) (diffs Comparison) {
 	switch lKind {
 	case reflect.Slice:
 		var (
-			rightComparator interface{}
+			rightComparator, leftComparator interface{}
 			differenceType DifferenceType
 		)
 
@@ -62,15 +62,23 @@ func compare(left, right interface{}) (diffs Comparison) {
 		}
 
 		for i := 0; i < comparisons; i++ {
+			differenceType = SliceDifference
+
 			if i < rVal.Len() {
 				rightComparator = rVal.Index(i).Interface()
-				differenceType = SliceDifference
 			} else {
 				rightComparator = nil
 				differenceType = SliceAdditionalValue
 			}
 
-			comparison := compare(lVal.Index(i).Interface(), rightComparator)
+			if i < lVal.Len() {
+				leftComparator = lVal.Index(i).Interface()
+			} else {
+				leftComparator = nil
+				differenceType = SliceAdditionalValue
+			}
+
+			comparison := compare(leftComparator, rightComparator)
 			if !reflect.DeepEqual(comparison, Comparison{}) {
 				comparison.Type = differenceType
 				comparison.Index = uint(i)
