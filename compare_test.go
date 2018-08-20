@@ -135,18 +135,18 @@ var _ = Describe("Compare", func() {
 			Expect(c).To(Equal(Comparison{
 				DifferenceDetails: []Comparison{
 					{
-						Type: SliceAdditionalValue,
+						Type:  SliceAdditionalValue,
 						Index: uint(2),
 						Difference: Difference{
-							LeftVal: 3,
+							LeftVal:  3,
 							RightVal: nil,
 						},
 					},
 					{
-						Type: SliceAdditionalValue,
+						Type:  SliceAdditionalValue,
 						Index: uint(3),
 						Difference: Difference{
-							LeftVal: 4,
+							LeftVal:  4,
 							RightVal: nil,
 						},
 					},
@@ -162,19 +162,52 @@ var _ = Describe("Compare", func() {
 			Expect(c).To(Equal(Comparison{
 				DifferenceDetails: []Comparison{
 					{
-						Type: SliceAdditionalValue,
+						Type:  SliceAdditionalValue,
 						Index: uint(2),
 						Difference: Difference{
-							LeftVal: nil,
+							LeftVal:  nil,
 							RightVal: "c",
 						},
 					},
 					{
-						Type: SliceAdditionalValue,
+						Type:  SliceAdditionalValue,
 						Index: uint(3),
 						Difference: Difference{
-							LeftVal: nil,
+							LeftVal:  nil,
 							RightVal: "d",
+						},
+					},
+				},
+			}))
+		})
+	})
+
+	Describe("structs", func() {
+		It("returns empty comparison when comparing two empty structs", func() {
+			leftObj := struct{}{}
+			rightObj := struct{}{}
+
+			c := Compare(leftObj, rightObj)
+			Expect(c).To(Equal(Comparison{}))
+		})
+
+		It("returns comparison with details when one public properties value is different between two structs", func() {
+			type Obj struct {
+				Property bool
+			}
+
+			leftObj := Obj{Property: true}
+			rightObj := Obj{Property: false}
+
+			c := Compare(leftObj, rightObj)
+			Expect(c).To(Equal(Comparison{
+				DifferenceDetails: []Comparison{
+					{
+						Type:  StructDifference,
+						Label: "Property",
+						Difference: Difference{
+							LeftVal:  true,
+							RightVal: false,
 						},
 					},
 				},

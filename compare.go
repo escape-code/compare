@@ -11,6 +11,7 @@ const (
 	TypeDifference
 	SliceDifference
 	SliceAdditionalValue
+	StructDifference
 )
 
 type Difference struct {
@@ -21,6 +22,7 @@ type Difference struct {
 type Comparison struct {
 	Type              DifferenceType
 	Index             uint
+	Label             string
 	Difference        Difference
 	DifferenceDetails []Comparison
 }
@@ -53,7 +55,7 @@ func compare(left, right interface{}) (diffs Comparison) {
 	case reflect.Slice:
 		var (
 			rightComparator, leftComparator interface{}
-			differenceType DifferenceType
+			differenceType                  DifferenceType
 		)
 
 		comparisons := lVal.Len()
@@ -104,6 +106,19 @@ func compare(left, right interface{}) (diffs Comparison) {
 			diffs.Difference = Difference{
 				LeftVal:  left,
 				RightVal: right,
+			}
+		}
+	case reflect.Struct:
+		leftV := reflect.ValueOf(left)
+		for i := 0; i < leftV.NumField(); i++ {
+			leftName := leftV.Type().Field(i).Name
+			leftComparitor := leftV.Field(i).Interface()
+			rightComparitor := reflect.ValueOf(right).FieldByName(leftName).Interface()
+			comparison := compare(leftComparitor, rightComparitor)
+			if !reflect.DeepEqual(comparison, Comparison{}) {
+				comparison.Type = StructDifference
+				comparison.Label = leftName
+				diffs.DifferenceDetails = append(diffs.DifferenceDetails, comparison)
 			}
 		}
 	default:
